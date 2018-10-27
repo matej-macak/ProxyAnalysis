@@ -8,6 +8,9 @@ import tweepy
 from tweepy import StreamListener
 import ast
 import time
+
+# Errors
+from requests.exceptions import ConnectionError
   
 
 class MyStreamListener(StreamListener):
@@ -64,13 +67,18 @@ if __name__ == "__main__":
     with open(credentials_path,"r") as fp:
         credentials = json.load(fp)
     
-    auth = tweepy.OAuthHandler(credentials["CONSUMER_KEY"], credentials["CONSUMER_SECRET"])
-    auth.set_access_token(credentials["ACCESS_TOKEN"], credentials["ACCESS_SECRET"])
-    api = tweepy.API(auth,wait_on_rate_limit=True)
+    while True:
+        try:
+            auth = tweepy.OAuthHandler(credentials["CONSUMER_KEY"], credentials["CONSUMER_SECRET"])
+            auth.set_access_token(credentials["ACCESS_TOKEN"], credentials["ACCESS_SECRET"])
+            api = tweepy.API(auth,wait_on_rate_limit=True)
 
-    myStreamListener = MyStreamListener(output_path, no_tweets)
-    myStream = tweepy.Stream(auth = api.auth, listener=MyStreamListener(output_path, no_tweets))
+            myStreamListener = MyStreamListener(output_path, no_tweets)
+            myStream = tweepy.Stream(auth = api.auth, listener=MyStreamListener(output_path, no_tweets))
 
-    syria = (35.7270, 32.3106, 42.3850, 37.3190)
-    myStream.filter(locations=syria)
+            syria = (35.7270, 32.3106, 42.3850, 37.3190)
+            myStream.filter(locations=syria)
+        except ConnectionError:
+            print("Error encountered sleeping for 60 seconds.")
+            time.sleep(60)
     
