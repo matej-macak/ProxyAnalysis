@@ -43,7 +43,6 @@ class MyStreamListener(StreamListener):
             # Get current date and output JSON
             date = time.strftime('%Y-%m-%d_%H-%M-%S', time.gmtime(time.time()))
             
-            
             if compression == "None":
                 # Save raw file
                 file_name = "{}/{}.json".format(self._output_path,date)
@@ -53,10 +52,10 @@ class MyStreamListener(StreamListener):
             if compression == "gzip":
                 file_name = "{}/{}.json.gz".format(self._output_path,date)
                 
-                json_str = json.dumps(self._data)              # 2. string (i.e. JSON)
+                json_str = json.dumps(self._data)        # 2. string (i.e. JSON)
                 json_bytes = json_str.encode('utf-8')    # 3. bytes (i.e. UTF-8)
                 
-                with open(file_name, "w") as outfile:
+                with gzip.GzipFile(file_name, "w") as outfile:
                     outfile.write(json_bytes)
         
             # Add to counter and reset data storage
@@ -73,7 +72,7 @@ if __name__ == "__main__":
     parser.add_argument("output", help = "Output path for twitter data.")
     parser.add_argument("credentials", help = "Path to twitter development credentials. Expects JSON file.")
     parser.add_argument("--no_tweets", dest = "no_tweets", help = "Save every N number of tweets.", default=1000, type=int )
-    parser.add_argument("--bbox", dest = "bbox", help = "Bounding box for the tweets selection.", default = (-13.4139, 49.1621, 1.7690, 60.8547))
+    parser.add_argument("--bbox", dest = "bbox", help = "Bounding box for the tweets selection.", nargs = 4, type = float, default = (-13.4139, 49.1621, 1.7690, 60.8547))
     parser.add_argument("--timeout", dest = "timeout", help = "Timeout in case of an error.", default = 60)
     parser.add_argument("--compression", dest = "compression", help = "Compression type.", default = "gzip")
         
